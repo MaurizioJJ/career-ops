@@ -242,3 +242,22 @@ test('contacto checks for a saved contact at the same company before a cold WebS
     'no saved-contact match must fall through to step 1 unchanged'
   );
 });
+
+test('contacto does not auto-reclassify a saved contact to internal-referral on a company match alone', () => {
+  const contactoModeDoc = readFileSync(join(CODE_ROOT, 'modes', 'contacto.md'), 'utf-8');
+  // CodeRabbit (PR #4692): a step-0 match surfaced purely by normalized
+  // company (contact-lookup.mjs's findContactsByCompany) must not silently
+  // overwrite a saved `peer` row's type -- `peer` explicitly documents NO
+  // prior relationship, so flipping it to `internal-referral` on a company
+  // match + "sure, reach out" would misrepresent the relationship.
+  assert.match(
+    contactoModeDoc,
+    /only once the candidate\s+has confirmed a real prior relationship/s,
+    'reclassifying a step-0 contact to internal-referral must require explicit relationship confirmation, not just a company match'
+  );
+  assert.match(
+    contactoModeDoc,
+    /saved as `peer` explicitly assumed NO prior relationship/,
+    'must call out that a saved peer row is not retroactively real just because it surfaced in step 0'
+  );
+});

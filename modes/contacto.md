@@ -135,9 +135,16 @@ short message; otherwise run the LinkedIn power move below.
    candidate confirming first. Saved contacts export to the phone with
    `node contacts.mjs --vcf` (vCard). A target that came from step 0 (an
    existing row) gets its `type` cell UPDATED to `internal-referral` in
-   place rather than appended as a new line — it is the same person, now
-   with a confirmed referral ask on top of whatever relationship got them
-   saved originally.
+   place rather than appended as a new line, but **only once the candidate
+   has confirmed a real prior relationship with this specific person** --
+   the step 0 company match alone is not that confirmation. A row already
+   saved as `peer` explicitly assumed NO prior relationship (see step 2);
+   surfacing it as a same-company option and the candidate agreeing to send
+   a referral ask does not, by itself, retroactively make that relationship
+   real. If the candidate can't point to an actual prior interaction (an
+   interview, a real conversation, anything beyond "we're both at this
+   company"), leave the saved row's type as-is and treat this as a fresh
+   `peer`/`recruiter` outreach instead, not an `internal-referral` one.
 
    When the contact comes from a pasted recruiter/interviewer reply, run
    `node contact-extract.mjs --file <email.txt>` instead. It reuses the reply
