@@ -479,6 +479,7 @@ const scripts = [
   { name: 'verify-cv-facts.mjs --self-test', expectExit: 0 },
   { name: 'verify-ats.mjs --self-test', expectExit: 0 },
   { name: 'contacts.mjs --self-test', expectExit: 0 },
+  { name: 'contact-lookup.mjs --self-test', expectExit: 0 },
   { name: 'company-funded.mjs --self-test', expectExit: 0 },
   { name: 'invite-match.mjs --self-test', expectExit: 0 },
   { name: 'tracker-sync-check.mjs --self-test', expectExit: 0 },
@@ -4669,6 +4670,19 @@ if (
   pass('contacto offers to save identified contacts (user-confirmed, never auto) and surfaces the vCard export');
 } else {
   fail('contacto missing the save-to-contacts.tsv step, the no-auto-save rule, or the contacts.mjs --vcf mention');
+}
+
+// #4691: before any cold WebSearch, contacto checks for a saved contact at the
+// same company via contact-lookup.mjs, and offers that prior relationship as
+// an internal-referral ask ahead of searching.
+if (
+  contactoModeDoc.includes('contact-lookup.mjs') &&
+  contactoModeDoc.includes('internal-referral') &&
+  contactoModeDoc.includes('Internal Referral')
+) {
+  pass('contacto checks for a saved contact at the same company (contact-lookup.mjs) before a cold WebSearch, and offers an internal-referral ask');
+} else {
+  fail('contacto missing the contact-lookup.mjs warm-lead check or the internal-referral persona (#4691)');
 }
 
 // ── 9. LOCAL PARSER CONTRACT ────────────────────────────────────
