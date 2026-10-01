@@ -16,7 +16,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -207,4 +207,15 @@ test('CLI: a company with no saved contacts.tsv at all answers empty, not a cras
   } finally {
     rmSync(dataRoot, { recursive: true, force: true });
   }
+});
+
+// --- 4. modes/contacto.md wiring (#4691) ------------------------------------
+// Moved here from test-all.mjs's inline checks (CodeRabbit, PR #4692): inline
+// checks are skipped by `--only`, while files under tests/ are auto-discovered.
+
+test('contacto checks for a saved contact at the same company before a cold WebSearch', () => {
+  const contactoModeDoc = readFileSync(join(CODE_ROOT, 'modes', 'contacto.md'), 'utf-8');
+  assert.match(contactoModeDoc, /contact-lookup\.mjs/, 'should reference contact-lookup.mjs');
+  assert.match(contactoModeDoc, /internal-referral/, 'should reference the internal-referral contact type');
+  assert.match(contactoModeDoc, /Internal Referral/, 'should define the Internal Referral persona');
 });
