@@ -218,4 +218,27 @@ test('contacto checks for a saved contact at the same company before a cold WebS
   assert.match(contactoModeDoc, /contact-lookup\.mjs/, 'should reference contact-lookup.mjs');
   assert.match(contactoModeDoc, /internal-referral/, 'should reference the internal-referral contact type');
   assert.match(contactoModeDoc, /Internal Referral/, 'should define the Internal Referral persona');
+
+  // Ordering: the saved-contact check must come before step 1's WebSearch,
+  // not just be mentioned somewhere in the document.
+  const lookupIndex = contactoModeDoc.indexOf('contact-lookup.mjs');
+  const webSearchIndex = contactoModeDoc.indexOf('Find ONE target** via WebSearch');
+  assert.ok(lookupIndex >= 0 && webSearchIndex >= 0, 'both anchors must exist in the doc');
+  assert.ok(
+    lookupIndex < webSearchIndex,
+    'contact-lookup.mjs check must appear before step 1\'s WebSearch target discovery'
+  );
+
+  // Fallback: both the decline branch and the no-match branch must continue
+  // to step 1 as normal — neither should dead-end the flow.
+  assert.match(
+    contactoModeDoc,
+    /declines.*?continue to step 1 as normal/s,
+    'declining the saved-contact offer must fall through to step 1 unchanged'
+  );
+  assert.match(
+    contactoModeDoc,
+    /no match exists.*?continue straight to step 1/s,
+    'no saved-contact match must fall through to step 1 unchanged'
+  );
 });
